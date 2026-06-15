@@ -1,0 +1,449 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+
+<title>メディア圧縮（画像・動画・音声）｜アップロード不要・ブラウザ内で軽量化｜ツール工房</title>
+<meta name="description" content="画像・動画・音声をサーバーに送らず、お使いの端末（ブラウザ）内だけで圧縮。画像はCanvas、動画・音声はffmpeg.wasmで処理。アップロード不要・無料で安心。">
+<link rel="canonical" href="https://ai-kaihatsubu.github.io/image-compressor/">
+
+<!-- OGP -->
+<meta property="og:type" content="website">
+<meta property="og:title" content="メディア圧縮（画像・動画・音声）｜アップロード不要・ブラウザ内で軽量化｜ツール工房">
+<meta property="og:description" content="画像・動画・音声をサーバーに送らず、端末内だけで圧縮。動画・音声はブラウザ内のffmpeg.wasmで処理、外部送信なし。無料。">
+<meta property="og:url" content="https://ai-kaihatsubu.github.io/image-compressor/">
+<meta property="og:image" content="https://ai-kaihatsubu.github.io/image-compressor/icons/icon-512.svg">
+<meta property="og:locale" content="ja_JP">
+<meta name="twitter:card" content="summary_large_image">
+
+<!-- PWA -->
+<link rel="manifest" href="manifest.webmanifest">
+<meta name="theme-color" content="#2563eb">
+<link rel="icon" href="icons/icon-192.svg" type="image/svg+xml">
+<link rel="apple-touch-icon" href="icons/icon-192.svg">
+
+<!-- JSON-LD: WebApplication -->
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "WebApplication",
+  "name": "メディア圧縮（画像・動画・音声）",
+  "description": "画像・動画・音声をサーバーに送らず、ブラウザ内だけで圧縮するツールです。画像はCanvas API、動画・音声はffmpeg.wasm（単一スレッド版）で処理し、データを外部に送信しません。",
+  "applicationCategory": "UtilitiesApplication",
+  "operatingSystem": "Any",
+  "offers": {
+    "@type": "Offer",
+    "price": "0",
+    "priceCurrency": "JPY"
+  }
+}
+</script>
+
+<link rel="stylesheet" href="style.css">
+
+<!-- TODO: AdSense（社長がキー登録後に有効化）
+<script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-XXXXXXXXXXXXXXXX" crossorigin="anonymous"></script>
+-->
+</head>
+<body>
+
+<a class="skip-link" href="#main">本文へスキップ</a>
+
+<header class="site-header">
+  <div class="container header-inner">
+    <h1 class="logo">メディア圧縮</h1>
+    <nav class="header-actions" aria-label="表示設定">
+      <button id="theme-toggle" type="button" aria-label="ダーク/ライトモード切替" aria-pressed="false">
+        <span aria-hidden="true">🌙</span>
+      </button>
+    </nav>
+  </div>
+</header>
+
+<!-- TODO: AdSense 広告枠（コンテンツ上） -->
+<div class="ad-slot ad-slot--top" data-ad-position="top" aria-hidden="true">
+  <!-- <ins class="adsbygoogle"
+       style="display:block"
+       data-ad-client="ca-pub-XXXXXXXXXXXXXXXX"
+       data-ad-slot="XXXXXXXXXX"
+       data-ad-format="auto"
+       data-full-width-responsive="true"></ins>
+  <script>(adsbygoogle = window.adsbygoogle || []).push({});</script> -->
+  <p class="ad-placeholder">広告スペース（準備中）</p>
+</div>
+
+<main id="main" class="container">
+
+  <section class="tool-section" aria-labelledby="tool-heading">
+    <h2 id="tool-heading">メディアを圧縮（画像・動画・音声）</h2>
+    <p class="lead">
+      画像・動画・音声はサーバーに送信されません。すべてこの端末（ブラウザ）内で処理されます。
+    </p>
+
+    <!-- モード切替タブ -->
+    <div class="mode-tabs" role="tablist" aria-label="圧縮モード">
+      <button type="button" class="mode-tab is-active" id="mode-tab-image"
+              role="tab" aria-selected="true" data-mode="image">画像</button>
+      <button type="button" class="mode-tab" id="mode-tab-video"
+              role="tab" aria-selected="false" data-mode="video">動画</button>
+      <button type="button" class="mode-tab" id="mode-tab-audio"
+              role="tab" aria-selected="false" data-mode="audio">音声</button>
+    </div>
+
+    <!-- ============ 画像モード ============ -->
+    <div id="panel-image" class="mode-panel" role="tabpanel" aria-labelledby="mode-tab-image">
+    <div id="tool-root">
+
+      <!-- ドロップ & ファイル選択 -->
+      <div id="drop-zone" class="drop-zone" tabindex="0" role="button"
+           aria-label="画像ファイルをドラッグ＆ドロップ、またはクリックして選択">
+        <p class="drop-zone__text">
+          ここに画像をドラッグ＆ドロップ<br>
+          <span class="drop-zone__sub">またはクリックしてファイルを選択（複数選択可）</span>
+        </p>
+        <input type="file" id="file-input" accept="image/*" multiple class="visually-hidden"
+               aria-label="画像ファイルを選択">
+      </div>
+
+      <!-- 設定パネル -->
+      <div class="settings-panel">
+        <div class="setting-row">
+          <label for="quality-slider">
+            画質: <output id="quality-value" for="quality-slider">0.7</output>
+          </label>
+          <input type="range" id="quality-slider" min="0.1" max="1.0" step="0.05" value="0.7"
+                 aria-describedby="quality-help">
+          <p id="quality-help" class="setting-help">数値が大きいほど高画質・容量は大きくなります。</p>
+        </div>
+
+        <div class="setting-row setting-row--grid">
+          <div>
+            <label for="resize-preset">リサイズ（最大幅）</label>
+            <select id="resize-preset">
+              <option value="0">原寸（リサイズしない）</option>
+              <option value="1920">1920px（フルHD相当）</option>
+              <option value="1280" selected>1280px（標準）</option>
+              <option value="800">800px（コンパクト）</option>
+              <option value="custom">カスタム指定</option>
+            </select>
+          </div>
+          <div id="custom-size-row" class="custom-size-row" hidden>
+            <div>
+              <label for="max-width">最大幅(px)</label>
+              <input type="number" id="max-width" min="1" step="1" placeholder="例: 1600" inputmode="numeric">
+            </div>
+            <div>
+              <label for="max-height">最大高さ(px)</label>
+              <input type="number" id="max-height" min="1" step="1" placeholder="例: 1200" inputmode="numeric">
+            </div>
+          </div>
+          <p class="setting-help">アスペクト比は維持されます。空欄の場合は原寸のまま処理します。</p>
+        </div>
+
+        <div class="setting-row">
+          <label for="format-select">出力形式</label>
+          <select id="format-select">
+            <option value="auto" selected>自動（JPEGで圧縮）</option>
+            <option value="image/jpeg">JPEG</option>
+            <option value="image/webp">WebP</option>
+            <option value="image/png">PNG（可逆形式のため圧縮効果は小さくなります）</option>
+          </select>
+        </div>
+      </div>
+
+      <!-- 操作ボタン -->
+      <div class="action-row">
+        <button type="button" id="download-all-btn" class="btn btn-primary" disabled>すべてダウンロード</button>
+        <button type="button" id="clear-btn" class="btn btn-secondary" disabled>クリア</button>
+      </div>
+
+      <p id="status-text" class="status-text" role="status" aria-live="polite"></p>
+
+      <!-- 結果一覧 -->
+      <ul id="result-list" class="result-list" aria-label="圧縮結果一覧"></ul>
+
+      <template id="result-item-template">
+        <li class="result-item">
+          <img class="result-item__thumb" alt="" width="80" height="80">
+          <div class="result-item__info">
+            <p class="result-item__name"></p>
+            <p class="result-item__sizes">
+              <span class="result-item__before"></span>
+              <span aria-hidden="true">→</span>
+              <span class="result-item__after"></span>
+              <span class="result-item__ratio"></span>
+            </p>
+            <p class="result-item__status"></p>
+          </div>
+          <a class="btn btn-secondary result-item__download" download>ダウンロード</a>
+        </li>
+      </template>
+
+    </div>
+    </div><!-- /panel-image -->
+
+    <!-- ============ 動画モード ============ -->
+    <div id="panel-video" class="mode-panel" role="tabpanel" aria-labelledby="mode-tab-video" hidden>
+
+      <div id="video-drop-zone" class="drop-zone" tabindex="0" role="button"
+           aria-label="動画ファイルをドラッグ＆ドロップ、またはクリックして選択">
+        <p class="drop-zone__text">
+          ここに動画をドラッグ＆ドロップ<br>
+          <span class="drop-zone__sub">またはクリックしてファイルを選択（1ファイル）</span>
+        </p>
+        <input type="file" id="video-input" accept="video/*" class="visually-hidden"
+               aria-label="動画ファイルを選択">
+      </div>
+
+      <div class="settings-panel">
+        <div class="setting-row setting-row--grid">
+          <div>
+            <label for="video-resolution">解像度の上限</label>
+            <select id="video-resolution">
+              <option value="0">原寸（変更しない）</option>
+              <option value="720" selected>720p（高さ720px）</option>
+              <option value="480">480p（高さ480px）</option>
+            </select>
+          </div>
+          <div>
+            <label for="video-quality">品質（画質と容量のバランス）</label>
+            <select id="video-quality">
+              <option value="26">高画質（容量大）</option>
+              <option value="30" selected>標準</option>
+              <option value="34">低画質（容量小）</option>
+            </select>
+          </div>
+        </div>
+        <p class="setting-help">
+          出力形式: <strong>MP4（H.264 / libx264 + AAC音声）</strong>。
+          アスペクト比は維持されます。解像度を下げると容量削減効果が高まります。
+        </p>
+      </div>
+
+      <div class="action-row">
+        <button type="button" id="video-compress-btn" class="btn btn-primary" disabled>圧縮を実行</button>
+        <button type="button" id="video-clear-btn" class="btn btn-secondary" disabled>クリア</button>
+      </div>
+
+      <div id="video-progress-wrap" class="progress-wrap" hidden>
+        <div class="progress-bar"><div id="video-progress-fill" class="progress-fill"></div></div>
+        <p id="video-progress-label" class="progress-label" role="status" aria-live="polite"></p>
+      </div>
+
+      <p id="video-status-text" class="status-text" role="status" aria-live="polite"></p>
+
+      <ul id="video-result-list" class="result-list" aria-label="動画圧縮結果"></ul>
+
+      <p class="setting-help notice-block">
+        動画圧縮は端末内のffmpeg.wasm（単一スレッド）で行うため、
+        ファイルが大きいほど処理に時間がかかり、メモリも多く使用します。
+        数十MB以下・短めの動画を推奨します。長尺・高解像度はブラウザが不安定になる場合があります。
+      </p>
+    </div><!-- /panel-video -->
+
+    <!-- ============ 音声モード ============ -->
+    <div id="panel-audio" class="mode-panel" role="tabpanel" aria-labelledby="mode-tab-audio" hidden>
+
+      <div id="audio-drop-zone" class="drop-zone" tabindex="0" role="button"
+           aria-label="音声ファイルをドラッグ＆ドロップ、またはクリックして選択">
+        <p class="drop-zone__text">
+          ここに音声をドラッグ＆ドロップ<br>
+          <span class="drop-zone__sub">またはクリックしてファイルを選択（1ファイル）</span>
+        </p>
+        <input type="file" id="audio-input" accept="audio/*" class="visually-hidden"
+               aria-label="音声ファイルを選択">
+      </div>
+
+      <div class="settings-panel">
+        <div class="setting-row">
+          <label for="audio-bitrate">ビットレート</label>
+          <select id="audio-bitrate">
+            <option value="128">128 kbps（高音質）</option>
+            <option value="96" selected>96 kbps（標準）</option>
+            <option value="64">64 kbps（軽量）</option>
+          </select>
+          <p class="setting-help">
+            出力形式: <strong>MP3（libmp3lame）</strong>。
+            ビットレートを下げるほど容量は小さく、音質はわずかに低下します。
+          </p>
+        </div>
+      </div>
+
+      <div class="action-row">
+        <button type="button" id="audio-compress-btn" class="btn btn-primary" disabled>圧縮を実行</button>
+        <button type="button" id="audio-clear-btn" class="btn btn-secondary" disabled>クリア</button>
+      </div>
+
+      <div id="audio-progress-wrap" class="progress-wrap" hidden>
+        <div class="progress-bar"><div id="audio-progress-fill" class="progress-fill"></div></div>
+        <p id="audio-progress-label" class="progress-label" role="status" aria-live="polite"></p>
+      </div>
+
+      <p id="audio-status-text" class="status-text" role="status" aria-live="polite"></p>
+
+      <ul id="audio-result-list" class="result-list" aria-label="音声圧縮結果"></ul>
+
+      <p class="setting-help notice-block">
+        音声圧縮は端末内のffmpeg.wasm（単一スレッド）で行います。
+        長時間の音声はメモリ・処理時間の制約を受けます。
+      </p>
+    </div><!-- /panel-audio -->
+
+    <!-- 動画・音声の結果アイテム用テンプレート -->
+    <template id="media-result-item-template">
+      <li class="result-item result-item--media">
+        <div class="result-item__info">
+          <p class="result-item__name"></p>
+          <p class="result-item__sizes">
+            <span class="result-item__before"></span>
+            <span aria-hidden="true">→</span>
+            <span class="result-item__after"></span>
+            <span class="result-item__ratio"></span>
+          </p>
+          <p class="result-item__status"></p>
+        </div>
+        <a class="btn btn-secondary result-item__download" download>ダウンロード</a>
+      </li>
+    </template>
+
+  </section>
+
+  <!-- 使い方 -->
+  <section class="tool-section" aria-labelledby="howto-heading">
+    <h2 id="howto-heading">使い方</h2>
+    <ol>
+      <li>上部のタブで「画像 / 動画 / 音声」モードを選びます。</li>
+      <li>圧縮したいファイルをドラッグ＆ドロップ、またはボタンから選択します（画像は複数枚OK）。</li>
+      <li>必要に応じて画質・解像度・ビットレートなどを調整します。</li>
+      <li>処理が完了すると、元のサイズ・圧縮後のサイズ・削減率が表示されます。</li>
+      <li>個別にダウンロード、または「すべてダウンロード」で保存できます。</li>
+    </ol>
+    <p>
+      画像はCanvas API、動画・音声はブラウザ内で動作するffmpeg.wasm（単一スレッド版）で処理され、
+      ファイルが外部のサーバーへ送信されることはありません。
+      保存されるのは設定情報のみで、メディアデータは含まれません。
+      動画・音声モードは初回実行時に圧縮エンジン（約25MB）を端末内に読み込みます。
+    </p>
+  </section>
+
+  <!-- FAQ -->
+  <section class="tool-section" aria-labelledby="faq-heading">
+    <h2 id="faq-heading">よくある質問</h2>
+
+    <h3>画像はアップロードされますか？</h3>
+    <p>
+      いいえ。本ツールは画像データを一切サーバーに送信しません。
+      選択した画像はブラウザ内のメモリ上でのみ処理され、処理が終わるとページを閉じることで消去されます。
+    </p>
+
+    <h3>画質はどれくらい下がりますか？</h3>
+    <p>
+      JPEG/WebPは非可逆圧縮のため、画質スライダーの値を下げるほど画質はわずかに低下し、
+      その分ファイルサイズは小さくなります。「画質を保ちながら容量を大きく削減」できる
+      バランスの良い設定を探すのにスライダーをご活用ください。
+      なお、PNG形式は可逆圧縮のため、圧縮による容量削減効果は小さくなります。
+    </p>
+
+    <h3>対応している画像形式は？</h3>
+    <p>
+      入力はJPEG・PNG・WebP・GIFなど、ブラウザが対応する一般的な画像形式に対応しています。
+      出力はJPEG・WebP・PNGから選択できます（「自動」を選ぶとJPEGで圧縮されます）。
+    </p>
+
+    <h3>動画・音声はどの形式で出力されますか？</h3>
+    <p>
+      動画はMP4（H.264 / libx264、音声はAAC）で出力します。音声はMP3（libmp3lame）で出力します。
+      いずれも広く再生できる形式です。入力は一般的な動画・音声形式に対応します
+      （端末内のffmpeg.wasmがデコードできる範囲）。
+    </p>
+
+    <h3>動画・音声もアップロードされませんか？</h3>
+    <p>
+      されません。動画・音声の圧縮は、リポジトリに同梱したffmpeg.wasm（単一スレッド版）を用いて
+      ブラウザ内だけで実行します。外部のサーバーやCDNへファイルを送信することはありません。
+      圧縮エンジン（約25MB）は動画・音声モードでの初回実行時に読み込まれ、以降はキャッシュされます。
+    </p>
+
+    <h3>大きい動画でも処理できますか？</h3>
+    <p>
+      原理的には可能ですが、ブラウザ内処理のため、ファイルが大きいほど処理時間が長くなり
+      メモリ使用量も増えます。数十MB以下・短めの動画を推奨します。
+      長尺・高解像度の動画はブラウザが不安定になる場合があります。
+    </p>
+
+    <h3>写真の向きが回転してしまうことはありますか？</h3>
+    <p>
+      スマートフォン等で撮影した画像のEXIF回転情報を読み取り、正しい向きで処理するように
+      実装しています。一部の古いブラウザでは向きの自動補正が効かない場合があります。
+    </p>
+
+    <h3>一度に何枚まで処理できますか？</h3>
+    <p>
+      枚数の制限は設けていませんが、画像は1枚ずつ順番に処理されます。
+      大量・大容量の画像を選択すると、処理に時間がかかる場合があります。
+    </p>
+  </section>
+
+  <!-- TODO: アフィリエイト枠 -->
+  <aside class="affiliate-box" aria-labelledby="affiliate-heading">
+    <h2 id="affiliate-heading">おすすめ</h2>
+    <p class="pr-label">[PR]</p>
+    <ul class="affiliate-list" id="affiliate-list">
+      <!-- monetization.js で動的に生成、またはここに直接記述 -->
+    </ul>
+  </aside>
+
+  <!-- Pro案内 -->
+  <section class="pro-box" aria-labelledby="pro-heading">
+    <h2 id="pro-heading">Proプラン</h2>
+    <p>
+      買い切り¥480で、広告非表示・処理済み画像の一括ダウンロード（ZIP化）・
+      一度に処理できる枚数の上限解放などが利用できる予定です（準備中）。
+    </p>
+    <button id="pro-button" type="button" class="btn btn-primary">Proを購入（準備中）</button>
+    <p class="dev-only">
+      <button id="dev-pro-toggle" type="button" class="btn btn-secondary">Proフラグを切替（開発用）</button>
+    </p>
+  </section>
+
+</main>
+
+<!-- TODO: AdSense 広告枠（コンテンツ下） -->
+<div class="ad-slot ad-slot--bottom" data-ad-position="bottom" aria-hidden="true">
+  <!-- <ins class="adsbygoogle"
+       style="display:block"
+       data-ad-client="ca-pub-XXXXXXXXXXXXXXXX"
+       data-ad-slot="XXXXXXXXXX"
+       data-ad-format="auto"
+       data-full-width-responsive="true"></ins>
+  <script>(adsbygoogle = window.adsbygoogle || []).push({});</script> -->
+  <p class="ad-placeholder">広告スペース（準備中）</p>
+</div>
+
+<footer class="site-footer">
+  <div class="container footer-inner">
+    <nav aria-label="フッターリンク">
+      <a href="privacy.html">プライバシーポリシー</a>
+      <a href="terms.html">利用規約</a>
+      <a href="operator.html">運営者情報</a>
+    </nav>
+    <p class="copyright">&copy; 2026 ツール工房</p>
+  </div>
+</footer>
+
+<script src="monetization.js" defer></script>
+<script src="app.js" defer></script>
+<!-- ffmpeg.wasm UMDラッパー（22KBと軽量。重いwasmコアは load() 実行時に初めて取得） -->
+<script src="vendor/ffmpeg/ffmpeg.min.js" defer></script>
+<script src="media.js" defer></script>
+<script>
+  // PWA: Service Worker 登録（相対パスなのでサブパス公開でも scope が正しく効く）
+  if ("serviceWorker" in navigator) {
+    window.addEventListener("load", function () {
+      navigator.serviceWorker.register("sw.js").catch(function () {});
+    });
+  }
+</script>
+</body>
+</html>

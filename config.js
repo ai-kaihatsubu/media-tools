@@ -1,0 +1,1 @@
+window.SUITE_CONFIG = { brand: "メディアツール", desc: "画像・動画・音声の圧縮とQRコード作成ができる無料ツール（端末内処理）", tabs: [ { label: "圧縮", path: "./tools/compress/index.html" }, { label: "QRコード", path: "./tools/qr/index.html" } ] };

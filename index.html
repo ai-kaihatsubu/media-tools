@@ -1,0 +1,137 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+
+<title>メディアツール｜ツール工房</title>
+<meta name="description" content="画像・動画・音声の圧縮とQRコード作成ができる無料ツール（端末内処理）">
+<link rel="canonical" href="https://ai-kaihatsubu.github.io/media-tools/">
+
+<!-- OGP -->
+<meta property="og:type" content="website">
+<meta property="og:title" content="メディアツール｜ツール工房">
+<meta property="og:description" content="画像・動画・音声の圧縮とQRコード作成ができる無料ツール（端末内処理）">
+<meta property="og:url" content="https://ai-kaihatsubu.github.io/media-tools/">
+<meta property="og:image" content="https://ai-kaihatsubu.github.io/media-tools/icons/icon-512.svg">
+<meta property="og:locale" content="ja_JP">
+<meta name="twitter:card" content="summary_large_image">
+
+<!-- PWA -->
+<link rel="manifest" href="manifest.webmanifest">
+<meta name="theme-color" content="#0071e3">
+<link rel="icon" href="icons/icon-192.svg" type="image/svg+xml">
+<link rel="apple-touch-icon" href="icons/icon-192.svg">
+
+<!-- JSON-LD -->
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "WebApplication",
+  "name": "メディアツール｜ツール工房",
+  "description": "画像・動画・音声の圧縮とQRコード作成ができる無料ツール（端末内処理）",
+  "applicationCategory": "UtilitiesApplication",
+  "operatingSystem": "Any",
+  "offers": {
+    "@type": "Offer",
+    "price": "0",
+    "priceCurrency": "JPY"
+  }
+}
+</script>
+
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+<a class="skip-link" href="#main">本文へスキップ</a>
+
+<header class="site-header">
+  <div class="container header-inner">
+    <h1 class="logo" id="brand">メディアツール</h1>
+    <nav class="header-actions" aria-label="表示設定">
+      <button id="theme-toggle" type="button" aria-label="ダーク/ライトモード切替" aria-pressed="false">
+        <span aria-hidden="true">🌙</span>
+      </button>
+    </nav>
+  </div>
+  <div class="container">
+    <!-- app.js が SUITE_CONFIG.tabs からタブボタンを動的生成 -->
+    <nav class="tab-nav" id="tab-bar" role="tablist" aria-label="ツール切替"></nav>
+  </div>
+</header>
+
+<!-- 広告枠（コンテンツ上） -->
+<div class="ad-slot ad-slot--top" data-ad-position="top" aria-hidden="true">
+  <p class="ad-placeholder">広告スペース（準備中）</p>
+</div>
+
+<main id="main" class="container">
+
+  <!-- app.js が SUITE_CONFIG.tabs からiframeパネルを動的生成 -->
+  <div class="tool-panels" id="panels"></div>
+
+  <!-- 使い方 -->
+  <section class="content-section" aria-labelledby="howto-heading">
+    <h2 id="howto-heading">使い方</h2>
+    <ol>
+      <li>画面上部のタブから使いたいツールを選びます。</li>
+      <li>選んだツールがそのまま画面に表示され、これまでと同じ操作で利用できます。</li>
+      <li>各ツールの入力内容・設定はそれぞれ独立して端末内に保存され、タブを切り替えても消えません。</li>
+      <li>最後に開いていたタブは次回アクセス時にも自動で復元されます。</li>
+    </ol>
+  </section>
+
+  <!-- アフィリエイト枠 -->
+  <aside class="affiliate-box" aria-labelledby="affiliate-heading">
+    <h2 id="affiliate-heading">あわせて使いたい効率化ツール</h2>
+    <p class="pr-label">[PR]</p>
+    <ul class="affiliate-list" id="affiliate-list">
+      <!-- monetization.js が動的に生成 -->
+    </ul>
+  </aside>
+
+  <!-- Pro案内 -->
+  <section class="pro-box" aria-labelledby="pro-heading">
+    <h2 id="pro-heading">メディアツール Pro（¥480 買い切り）</h2>
+    <ul class="pro-features">
+      <li>広告非表示（シェル全体）</li>
+      <li>すべてのツールで利用可能</li>
+    </ul>
+    <button id="pro-button" type="button" class="btn btn-primary">Proを購入（準備中）</button>
+    <p class="hint">
+      動作確認用: <button type="button" id="dev-pro-toggle" class="btn btn-secondary btn-sm">Proフラグを切替（開発用）</button>
+    </p>
+  </section>
+
+</main>
+
+<!-- 広告枠（コンテンツ下） -->
+<div class="ad-slot ad-slot--bottom" data-ad-position="bottom" aria-hidden="true">
+  <p class="ad-placeholder">広告スペース（準備中）</p>
+</div>
+
+<footer class="site-footer">
+  <div class="container footer-inner">
+    <nav aria-label="フッターリンク">
+      <a href="privacy.html">プライバシーポリシー</a>
+      <a href="terms.html">利用規約</a>
+      <a href="operator.html">運営者情報</a>
+    </nav>
+    <p class="copyright">&copy; 2026 メディアツール</p>
+  </div>
+</footer>
+
+<script src="config.js"></script>
+<script src="monetization.js" defer></script>
+<script src="app.js" defer></script>
+<script>
+  // PWA: Service Worker 登録（相対パスなのでサブパス公開でも scope が正しく効く）
+  if ("serviceWorker" in navigator) {
+    window.addEventListener("load", function () {
+      navigator.serviceWorker.register("sw.js").catch(function () {});
+    });
+  }
+</script>
+</body>
+</html>

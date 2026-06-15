@@ -1,0 +1,25 @@
+{
+  "name": "画像圧縮ツール｜ブラウザ内で写真を軽量化",
+  "short_name": "画像圧縮ツール",
+  "description": "画像をアップロードせず、ブラウザ内（端末内）で圧縮・リサイズするツールです。",
+  "start_url": "./index.html",
+  "scope": "./",
+  "display": "standalone",
+  "background_color": "#f7f8fa",
+  "theme_color": "#2563eb",
+  "lang": "ja",
+  "icons": [
+    {
+      "src": "icons/icon-192.svg",
+      "sizes": "192x192",
+      "type": "image/svg+xml",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "icons/icon-512.svg",
+      "sizes": "512x512",
+      "type": "image/svg+xml",
+      "purpose": "any maskable"
+    }
+  ]
+}

@@ -1,0 +1,231 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+
+<title>QRコード作成ツール｜無料・登録不要・完全オフライン｜ツール工房</title>
+<meta name="description" content="テキストやURLを入力するだけで高精度なQRコードをその場で生成。日本語対応・誤り訂正レベル選択・PNG/SVGダウンロード対応。データは送信されない完全ブラウザ動作の無料QR作成ツール。">
+<link rel="canonical" href="https://ai-kaihatsubu.github.io/qr-code-generator/">
+
+<!-- OGP -->
+<meta property="og:type" content="website">
+<meta property="og:title" content="QRコード作成ツール｜無料・登録不要・完全オフライン｜ツール工房">
+<meta property="og:description" content="テキストやURLを入力するだけで高精度なQRコードをその場で生成。日本語対応・誤り訂正レベル選択・PNG/SVGダウンロード対応。データは送信されない完全ブラウザ動作の無料QR作成ツール。">
+<meta property="og:url" content="https://ai-kaihatsubu.github.io/qr-code-generator/">
+<meta property="og:image" content="https://ai-kaihatsubu.github.io/qr-code-generator/icons/icon-512.svg">
+<meta property="og:locale" content="ja_JP">
+<meta name="twitter:card" content="summary_large_image">
+
+<!-- PWA -->
+<link rel="manifest" href="manifest.webmanifest">
+<meta name="theme-color" content="#2563eb">
+<link rel="icon" href="icons/icon-192.svg" type="image/svg+xml">
+<link rel="apple-touch-icon" href="icons/icon-192.svg">
+
+<!-- JSON-LD: WebApplication -->
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "WebApplication",
+  "name": "QRコード作成ツール",
+  "description": "テキストやURLからQRコードをブラウザ内だけで生成できる無料ツール。日本語対応、誤り訂正レベル選択、PNG/SVGダウンロード対応。",
+  "applicationCategory": "UtilitiesApplication",
+  "operatingSystem": "Any",
+  "offers": {
+    "@type": "Offer",
+    "price": "0",
+    "priceCurrency": "JPY"
+  }
+}
+</script>
+
+<link rel="stylesheet" href="style.css">
+
+<!-- TODO: AdSense（社長がキー登録後に有効化）
+<script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-XXXXXXXXXXXXXXXX" crossorigin="anonymous"></script>
+-->
+</head>
+<body>
+
+<a class="skip-link" href="#main">本文へスキップ</a>
+
+<header class="site-header">
+  <div class="container header-inner">
+    <h1 class="logo">QRコード作成ツール</h1>
+    <nav class="header-actions" aria-label="表示設定">
+      <button id="theme-toggle" type="button" aria-label="ダーク/ライトモード切替" aria-pressed="false">
+        <span aria-hidden="true">🌙</span>
+      </button>
+    </nav>
+  </div>
+</header>
+
+<!-- TODO: AdSense 広告枠（コンテンツ上） -->
+<div class="ad-slot ad-slot--top" data-ad-position="top" aria-hidden="true">
+  <!-- <ins class="adsbygoogle"
+       style="display:block"
+       data-ad-client="ca-pub-XXXXXXXXXXXXXXXX"
+       data-ad-slot="XXXXXXXXXX"
+       data-ad-format="auto"
+       data-full-width-responsive="true"></ins>
+  <script>(adsbygoogle = window.adsbygoogle || []).push({});</script> -->
+  <p class="ad-placeholder">広告スペース（準備中）</p>
+</div>
+
+<main id="main" class="container">
+
+  <section class="tool-section" aria-labelledby="tool-heading">
+    <h2 id="tool-heading">QRコードを作成</h2>
+    <div id="tool-root">
+
+      <div class="qr-layout">
+        <div class="qr-controls">
+          <div class="field">
+            <label for="qr-text">テキスト / URL</label>
+            <textarea id="qr-text" rows="4" placeholder="ここにテキストやURLを入力してください（日本語もOK）" aria-describedby="qr-text-hint"></textarea>
+            <p id="qr-text-hint" class="field-hint">入力すると自動的にQRコードが生成されます。</p>
+          </div>
+
+          <div class="field-row">
+            <div class="field">
+              <label for="qr-eclevel">誤り訂正レベル</label>
+              <select id="qr-eclevel">
+                <option value="L">L（約7%・容量重視）</option>
+                <option value="M" selected>M（約15%・標準）</option>
+                <option value="Q">Q（約25%・高耐久）</option>
+                <option value="H">H（約30%・最高耐久）</option>
+              </select>
+            </div>
+
+            <div class="field">
+              <label for="qr-size">画像サイズ</label>
+              <select id="qr-size">
+                <option value="256">256 px</option>
+                <option value="384">384 px</option>
+                <option value="512" selected>512 px</option>
+                <option value="768">768 px</option>
+                <option value="1024">1024 px</option>
+              </select>
+            </div>
+          </div>
+
+          <div class="field-row">
+            <div class="field">
+              <label for="qr-margin">余白（モジュール数）</label>
+              <input type="number" id="qr-margin" min="0" max="16" value="4" inputmode="numeric">
+            </div>
+
+            <div class="field">
+              <label for="qr-fg">前景色</label>
+              <input type="color" id="qr-fg" value="#000000">
+            </div>
+
+            <div class="field">
+              <label for="qr-bg">背景色</label>
+              <input type="color" id="qr-bg" value="#ffffff">
+            </div>
+          </div>
+
+          <div class="qr-info" id="qr-info" role="status" aria-live="polite">
+            テキストを入力してください。
+          </div>
+
+          <div class="qr-actions">
+            <button id="qr-download-png" type="button" class="btn btn-primary" disabled>PNGをダウンロード</button>
+            <button id="qr-download-svg" type="button" class="btn btn-secondary" disabled>SVGをダウンロード</button>
+          </div>
+        </div>
+
+        <div class="qr-preview">
+          <div class="qr-canvas-wrap">
+            <canvas id="qr-canvas" width="512" height="512" aria-label="生成されたQRコード"></canvas>
+            <p id="qr-error" class="qr-error" role="alert" hidden></p>
+          </div>
+        </div>
+      </div>
+
+      <section class="usage-box" aria-labelledby="usage-heading">
+        <h3 id="usage-heading">使い方</h3>
+        <ol>
+          <li>「テキスト / URL」欄に、QRコードにしたい文字列やURLを入力します（日本語も入力できます）。</li>
+          <li>入力すると自動的にQRコードが生成されます。</li>
+          <li>誤り訂正レベル・画像サイズ・余白・色などを調整すると、即座に再生成されます。</li>
+          <li>「PNGをダウンロード」または「SVGをダウンロード」ボタンから画像を保存できます。</li>
+        </ol>
+      </section>
+
+      <section class="faq-box" aria-labelledby="faq-heading">
+        <h3 id="faq-heading">FAQ</h3>
+        <dl>
+          <dt>入力したテキストはサーバーに送信されますか？</dt>
+          <dd>いいえ。すべての処理はお使いの端末（ブラウザ）内で行われ、入力内容は一切外部に送信・保存されません。</dd>
+
+          <dt>誤り訂正レベルとは何ですか？</dt>
+          <dd>QRコードの一部が汚れたり破損したりしても読み取れるようにする冗長度の設定です。L（約7%）からH（約30%）まで選べ、レベルが高いほど耐久性は上がりますが、QRコードの模様は細かくなります（同じデータでもバージョン＝サイズが大きくなる場合があります）。</dd>
+
+          <dt>長い文章やURLでも生成できますか？</dt>
+          <dd>はい。入力内容の長さと誤り訂正レベルに応じて、QRコードの規格上のバージョン（サイズ）が自動的に最適なものに調整されます。ただし規格上の最大容量（バージョン40）を超える場合はエラーが表示されます。</dd>
+
+          <dt>SVGダウンロードとPNGダウンロードの違いは？</dt>
+          <dd>PNGは指定したサイズのビットマップ画像です。SVGはベクタ形式のため、どれだけ拡大しても輪郭がぼやけず、印刷物などにも適しています。</dd>
+        </dl>
+      </section>
+
+    </div>
+  </section>
+
+  <!-- アフィリエイト枠 -->
+  <aside class="affiliate-box" aria-labelledby="affiliate-heading">
+    <h2 id="affiliate-heading">おすすめ</h2>
+    <p class="pr-label">[PR]</p>
+    <ul class="affiliate-list" id="affiliate-list">
+      <!-- monetization.js で動的に生成 -->
+    </ul>
+  </aside>
+
+  <!-- Pro案内 -->
+  <section class="pro-box" aria-labelledby="pro-heading">
+    <h2 id="pro-heading">Proプラン</h2>
+    <p>広告非表示・追加機能が使える買い切りプランです。</p>
+    <button id="pro-button" type="button" class="btn btn-primary">Proを購入（準備中）</button>
+  </section>
+
+</main>
+
+<!-- TODO: AdSense 広告枠（コンテンツ下） -->
+<div class="ad-slot ad-slot--bottom" data-ad-position="bottom" aria-hidden="true">
+  <!-- <ins class="adsbygoogle"
+       style="display:block"
+       data-ad-client="ca-pub-XXXXXXXXXXXXXXXX"
+       data-ad-slot="XXXXXXXXXX"
+       data-ad-format="auto"
+       data-full-width-responsive="true"></ins>
+  <script>(adsbygoogle = window.adsbygoogle || []).push({});</script> -->
+  <p class="ad-placeholder">広告スペース（準備中）</p>
+</div>
+
+<footer class="site-footer">
+  <div class="container footer-inner">
+    <nav aria-label="フッターリンク">
+      <a href="privacy.html">プライバシーポリシー</a>
+      <a href="terms.html">利用規約</a>
+      <a href="operator.html">運営者情報</a>
+    </nav>
+    <p class="copyright">&copy; 2026 ツール工房</p>
+  </div>
+</footer>
+
+<script src="monetization.js" defer></script>
+<script src="qrcode-lib.js" defer></script>
+<script src="app.js" defer></script>
+<script>
+  // PWA: Service Worker 登録（相対パスなのでサブパス公開でも scope が正しく効く）
+  if ("serviceWorker" in navigator) {
+    window.addEventListener("load", function () {
+      navigator.serviceWorker.register("sw.js").catch(function () {});
+    });
+  }
+</script>
+</body>
+</html>
