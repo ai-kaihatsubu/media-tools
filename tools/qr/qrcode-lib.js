@@ -1,5 +1,5 @@
 /* ============================================
-   ツール工房 004-qr-code-generator : qrcode-lib.js
+   ツール置き場 004-qr-code-generator : qrcode-lib.js
    外部ライブラリ不使用の自己完結QRコードエンコーダ
    - byteモード(UTF-8)対応（必須）
    - numeric/alphanumericモードによるビット長最適化（任意最適化）

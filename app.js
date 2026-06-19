@@ -10,7 +10,7 @@
   "use strict";
 
   const STORAGE_KEY_THEME = "tf_theme";        // "light" | "dark"
-  const STORAGE_KEY_PRO = "tf_pro";            // "1" で Pro 有効（擬似フラグ）
+  const STORAGE_KEY_PRO = "tf_pro";            // "1" でお布施済みフラグ（擬似）
   const STORAGE_KEY_ACTIVE_TAB = "tf_cat_active"; // 最後に開いたタブ（インデックス）
 
   /* ---------- ブランド表示 ---------- */
@@ -21,7 +21,7 @@
     }
     const proHeading = document.getElementById("pro-heading");
     if (proHeading && config.brand) {
-      proHeading.textContent = config.brand + " Pro（¥480 買い切り）";
+      proHeading.textContent = config.brand + "のお布施";
     }
   }
 

@@ -1,5 +1,5 @@
 /* ============================================
-   ツール工房 004-qr-code-generator : app.js
+   ツール置き場 004-qr-code-generator : app.js
    QRコード作成ツール本体ロジック（バニラJS / 外部依存なし）
    ============================================ */
 
@@ -7,7 +7,7 @@
   "use strict";
 
   const STORAGE_KEY_THEME = "tf_theme"; // "light" | "dark"
-  const STORAGE_KEY_PRO = "tf_pro";     // "1" で Pro 有効（擬似フラグ）
+  const STORAGE_KEY_PRO = "tf_pro";     // "1" でお布施済みフラグ（擬似）
   const DEBOUNCE_MS = 250;
 
   /* ---------- テーマ切替 ---------- */
@@ -46,7 +46,7 @@
     }
   }
 
-  /* ---------- Pro判定（広告非表示など） ---------- */
+  /* ---------- お布施フラグ判定 ---------- */
   function isPro() {
     return localStorage.getItem(STORAGE_KEY_PRO) === "1";
   }

@@ -2,7 +2,7 @@
    画像圧縮ツール : app.js
    バニラJS / 外部依存なし
    - ダーク/ライト切替（localStorage保存）
-   - Proフラグ判定（広告非表示などの分岐の起点）
+   - お布施フラグ判定（分岐の起点）
    - 画像のドラッグ&ドロップ／選択 → Canvas APIで圧縮・リサイズ
    - 画像データはサーバーに送信・保存しない（設定のみ保存）
    ============================================ */
@@ -11,7 +11,7 @@
   "use strict";
 
   const STORAGE_KEY_THEME = "tf_theme"; // "light" | "dark"
-  const STORAGE_KEY_PRO = "tf_pro";     // "1" で Pro 有効（擬似フラグ）
+  const STORAGE_KEY_PRO = "tf_pro";     // "1" でお布施済みフラグ（擬似）
   const STORAGE_KEY_SETTINGS = "imgcomp_settings"; // 画質・リサイズ・形式の設定のみ保存
 
   /* ---------- テーマ切替 ---------- */
@@ -50,7 +50,7 @@
     }
   }
 
-  /* ---------- Pro判定（広告非表示など） ---------- */
+  /* ---------- お布施フラグ判定 ---------- */
   function isPro() {
     return localStorage.getItem(STORAGE_KEY_PRO) === "1";
   }

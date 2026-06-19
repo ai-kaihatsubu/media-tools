@@ -61,7 +61,7 @@
 
 - AdSense: コンテンツ上下に2枠（`monetization.js`の`ADSENSE_CLIENT_ID`未設定）
 - アフィリエイト: 「おすすめ」枠（オンラインストレージ・写真管理/編集ソフト想定、`AFFILIATE_ITEMS`未設定）
-- Stripe Pro（¥480買い切り）: 広告非表示・一括ダウンロード(zip)・処理枚数上限解放を想定（`STRIPE_PAYMENT_LINK_URL`未設定）
+- Stripe お布施: 任意のご支援（`STRIPE_DONATION_URL`未設定）
 
 ## 公開手順（社長作業）
 
@@ -71,5 +71,5 @@
 4. AdSense審査申請 → 通過後 `monetization.js`の`ADSENSE_CLIENT_ID`設定とタグ有効化
 5. AdSense配信開始に伴うCookie同意（CMP）対応の検討
 6. アフィリエイト提携（オンラインストレージ・写真管理ソフト等）→ `AFFILIATE_ITEMS`を実リンクに更新
-7. Stripe Payment Link発行 → `STRIPE_PAYMENT_LINK_URL`設定
+7. Stripeお布施Link発行 → `STRIPE_DONATION_URL`設定
 8. 公開前に開発用「Proフラグを切替（開発用）」ボタンの削除を検討
