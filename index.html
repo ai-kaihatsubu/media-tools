@@ -48,7 +48,10 @@
 
 <header class="site-header">
   <div class="container header-inner">
-    <h1 class="logo" id="brand">メディアツール</h1>
+    <div class="brand-area">
+      <a class="back-link" href="https://ai-kaihatsubu.github.io/">← ツール置き場トップへ</a>
+      <h1 class="logo" id="brand">メディアツール</h1>
+    </div>
     <nav class="header-actions" aria-label="表示設定">
       <button id="theme-toggle" type="button" aria-label="ダーク/ライトモード切替" aria-pressed="false">
         <span aria-hidden="true">🌙</span>
@@ -61,61 +64,10 @@
   </div>
 </header>
 
-<!-- 広告枠（コンテンツ上） -->
-<div class="ad-slot ad-slot--top" data-ad-position="top" aria-hidden="true">
-  <p class="ad-placeholder">広告スペース（準備中）</p>
-</div>
-
 <main id="main" class="container">
-
-  <!-- app.js が SUITE_CONFIG.tabs からiframeパネルを動的生成 -->
+  <!-- app.js が SUITE_CONFIG.tabs からiframeパネルを動的生成。お布施・広告・フッター・使い方は各ツール(iframe内)が持つため、シェル側には重複して置かない -->
   <div class="tool-panels" id="panels"></div>
-
-  <!-- 使い方 -->
-  <section class="content-section" aria-labelledby="howto-heading">
-    <h2 id="howto-heading">使い方</h2>
-    <ol>
-      <li>画面上部のタブから使いたいツールを選びます。</li>
-      <li>選んだツールがそのまま画面に表示され、これまでと同じ操作で利用できます。</li>
-      <li>各ツールの入力内容・設定はそれぞれ独立して端末内に保存され、タブを切り替えても消えません。</li>
-      <li>最後に開いていたタブは次回アクセス時にも自動で復元されます。</li>
-    </ol>
-  </section>
-
-  <!-- アフィリエイト枠 -->
-  <aside class="affiliate-box" aria-labelledby="affiliate-heading">
-    <h2 id="affiliate-heading">あわせて使いたい効率化ツール</h2>
-    <p class="pr-label">[PR]</p>
-    <ul class="affiliate-list" id="affiliate-list">
-      <!-- monetization.js が動的に生成 -->
-    </ul>
-  </aside>
-
-  <!-- Pro案内 -->
-  <section class="ofuse-box" aria-labelledby="ofuse-heading">
-  <h2 id="ofuse-heading">お布施（任意のご支援）</h2>
-  <p>このツールは無料でお使いいただけます。もしお役に立てたなら、よろしければ「お布施」で応援いただけると励みになります。<strong>お布施は任意のご支援（寄付）で、見返り（広告の非表示など）はありません。</strong>いただいたお布施は運営費に充てさせていただきます。</p>
-  <button id="ofuse-button" type="button" class="btn btn-primary">お布施する（応援）</button>
-  <p class="hint" id="ofuse-status" aria-live="polite"></p>
-</section>
-
 </main>
-
-<!-- 広告枠（コンテンツ下） -->
-<div class="ad-slot ad-slot--bottom" data-ad-position="bottom" aria-hidden="true">
-  <p class="ad-placeholder">広告スペース（準備中）</p>
-</div>
-
-<footer class="site-footer">
-  <div class="container footer-inner">
-    <nav aria-label="フッターリンク">
-      <a href="privacy.html">プライバシーポリシー</a>
-      <a href="terms.html">利用規約</a>
-      <a href="operator.html">運営者情報</a>
-    </nav>
-    <p class="copyright">&copy; 2026 キュリオスモンスター</p>
-  </div>
-</footer>
 
 <script src="config.js"></script>
 <script src="monetization.js" defer></script>
