@@ -65,9 +65,33 @@
 </header>
 
 <main id="main" class="container">
-  <!-- app.js が SUITE_CONFIG.tabs からiframeパネルを動的生成。お布施・広告・フッター・使い方は各ツール(iframe内)が持つため、シェル側には重複して置かない -->
+  <!-- app.js が SUITE_CONFIG.tabs からiframeパネルを動的生成。iframe内ツールの重複チロム(ヘッダー/お布施/広告/フッター)はapp.jsがCSSで非表示にする -->
   <div class="tool-panels" id="panels"></div>
+
+  <!-- お布施（このページに1つだけ・全幅） -->
+  <section class="ofuse-box" aria-labelledby="ofuse-heading">
+    <h2 id="ofuse-heading">お布施（任意のご支援）</h2>
+    <p>これらのツールはすべて無料でお使いいただけます。もしお役に立てたなら、よろしければ「お布施」で応援いただけると励みになります。<strong>お布施は任意のご支援（寄付）で、見返り（広告の非表示など）はありません。</strong>いただいたお布施は運営費に充てさせていただきます。</p>
+    <button id="ofuse-button" type="button" class="btn btn-primary">お布施する（応援）</button>
+    <p class="hint" id="ofuse-status" aria-live="polite"></p>
+  </section>
 </main>
+
+<!-- 広告枠（コンテンツ下・ページレベル） -->
+<div class="ad-slot ad-slot--bottom" data-ad-position="bottom" aria-hidden="true">
+  <p class="ad-placeholder">広告スペース（準備中）</p>
+</div>
+
+<footer class="site-footer">
+  <div class="container footer-inner">
+    <nav aria-label="フッターリンク">
+      <a href="privacy.html">プライバシーポリシー</a>
+      <a href="terms.html">利用規約</a>
+      <a href="operator.html">運営者情報</a>
+    </nav>
+    <p class="copyright">&copy; 2026 キュリオスモンスター</p>
+  </div>
+</footer>
 
 <script src="config.js"></script>
 <script src="monetization.js" defer></script>

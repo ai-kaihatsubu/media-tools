@@ -133,6 +133,22 @@
       iframe.dataset.src = tab.path || "";
       iframe.loading = index === 0 ? "eager" : "lazy";
 
+      // iframe内のツールが持つ重複チロム（ヘッダー/お布施/広告/アフィリ/フッター）を非表示にし、
+      // ツール本体だけを表示する。お布施・フッター・広告はシェル(このページ)側に1つだけ置く。
+      iframe.addEventListener("load", function () {
+        try {
+          var doc = iframe.contentDocument;
+          if (doc && doc.head && !doc.getElementById("__tf_embed_style")) {
+            var st = doc.createElement("style");
+            st.id = "__tf_embed_style";
+            st.textContent =
+              ".site-header,.ofuse-box,.affiliate-box,.ad-slot,.site-footer{display:none !important;}" +
+              "main#main{padding-top:8px !important;}";
+            doc.head.appendChild(st);
+          }
+        } catch (e) {}
+      });
+
       wrapper.appendChild(iframe);
       section.appendChild(wrapper);
       panelsContainer.appendChild(section);
