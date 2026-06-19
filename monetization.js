@@ -19,7 +19,7 @@
       { label: "TODO: おすすめ商品・サービス2", url: "https://example.com/affiliate-placeholder-2" },
       { label: "TODO: おすすめ商品・サービス3", url: "https://example.com/affiliate-placeholder-3" },
     ],
-    STRIPE_DONATION_URL: "",
+    STRIPE_DONATION_URL: "https://donate.stripe.com/9B6cN54Q9ebA01IaYB2Nq00",
   };
 
   var isPlaceholderAd   = function (id)  { return !id || /X{4,}/.test(id); };
