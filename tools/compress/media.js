@@ -104,7 +104,12 @@
   function buildOutName(originalName, ext) {
     const dot = originalName.lastIndexOf(".");
     const base = dot > 0 ? originalName.slice(0, dot) : originalName;
-    return `${base}.compressed.${ext}`;
+    const srcExt = dot > 0 ? originalName.slice(dot + 1).toLowerCase() : "";
+    // 形式が変わる場合（例: m4a → wav）は変換なので拡張子だけ差し替える。
+    // 同じ形式のまま（＝圧縮）のときは元ファイルと区別できるよう .compressed を付ける。
+    return srcExt === String(ext).toLowerCase()
+      ? `${base}.compressed.${ext}`
+      : `${base}.${ext}`;
   }
 
   function safeInputName(originalName, fallbackExt) {
@@ -201,7 +206,7 @@
 
       nameEl.textContent = resultName;
       beforeEl.textContent = `元: ${formatSize(originalSize)}`;
-      afterEl.textContent = `圧縮後: ${formatSize(resultBlob.size)}`;
+      afterEl.textContent = `出力: ${formatSize(resultBlob.size)}`;
       ratioEl.textContent = reduction > 0
         ? `（${reduction}%削減）`
         : reduction < 0
@@ -222,7 +227,10 @@
       dom.resultList.innerHTML = "";
 
       const inName = safeInputName(local.file.name, config.kind === "video" ? "mp4" : "mp3");
-      const outName = `output.${config.outExt}`;
+      // 出力形式は実行時に解決する（音声モードは出力形式セレクタで切り替わるため関数で渡される）
+      const outExt = typeof config.outExt === "function" ? config.outExt() : config.outExt;
+      const outMime = typeof config.outMime === "function" ? config.outMime() : config.outMime;
+      const outName = `output.${outExt}`;
       let ffmpeg;
 
       try {
@@ -230,17 +238,17 @@
         // 単一スレッド版は run() が一度きりのため、毎回 新規インスタンスを load() する。
         showProgress(true);
         setProgress(0, everLoaded
-          ? "圧縮エンジンを準備中…"
-          : "圧縮エンジンを読み込み中…（初回のみ・約25MB）");
+          ? "処理エンジンを準備中…"
+          : "処理エンジンを読み込み中…（初回のみ・約25MB）");
         setStatus("処理中です。ファイルが大きいほど時間がかかります。");
         ffmpeg = await createLoadedFFmpeg();
 
         // --- 進捗ハンドラを差し替え ---
         currentProgressHandler = (ratio) => {
-          setProgress(ratio, `圧縮中… ${Math.round(ratio * 100)}%`);
+          setProgress(ratio, `処理中… ${Math.round(ratio * 100)}%`);
         };
 
-        setProgress(0, "圧縮中… 0%");
+        setProgress(0, "処理中… 0%");
 
         // --- 入力をFSへ書き込み ---
         ffmpeg.FS("writeFile", inName, await fetchFile(local.file));
@@ -251,8 +259,8 @@
 
         // --- 出力読み出し ---
         const data = ffmpeg.FS("readFile", outName);
-        const blob = new Blob([data.buffer], { type: config.outMime });
-        const resultName = buildOutName(local.file.name, config.outExt);
+        const blob = new Blob([data.buffer], { type: outMime });
+        const resultName = buildOutName(local.file.name, outExt);
 
         // --- 後始末（メモリ解放） ---
         try { ffmpeg.FS("unlink", inName); } catch (e) { /* ignore */ }
@@ -262,10 +270,10 @@
 
         setProgress(1, "完了");
         renderResult(local.file.size, blob, resultName);
-        setStatus("圧縮が完了しました。");
+        setStatus("完了しました。");
       } catch (err) {
         showProgress(false);
-        setStatus(`圧縮に失敗しました: ${(err && err.message) ? err.message : err}`);
+        setStatus(`処理に失敗しました: ${(err && err.message) ? err.message : err}`);
       } finally {
         currentProgressHandler = null;
         ffmpeg = null;
@@ -340,9 +348,34 @@
     });
   }
 
-  /* ---------- 音声コントローラ ---------- */
+  /* ---------- 音声コントローラ ----------
+     出力形式(MP3 / M4A(AAC) / WAV)を選べるので、圧縮だけでなく
+     M4A・MP3 → WAV、WAV → M4A・MP3 の相互変換にも対応する。 */
+  const AUDIO_MIME = {
+    mp3: "audio/mpeg",
+    m4a: "audio/mp4",
+    wav: "audio/wav",
+  };
+
   function initAudio() {
     const bitrateSel = document.getElementById("audio-bitrate");
+    const formatSel = document.getElementById("audio-format");
+    const bitrateRow = document.getElementById("audio-bitrate-row");
+
+    function currentFormat() {
+      const v = formatSel && formatSel.value ? formatSel.value : "mp3";
+      return AUDIO_MIME[v] ? v : "mp3";
+    }
+
+    // WAVは無圧縮なのでビットレート指定は無効化する
+    function syncBitrateAvailability() {
+      const isLossless = currentFormat() === "wav";
+      if (bitrateSel) bitrateSel.disabled = isLossless;
+      if (bitrateRow) bitrateRow.classList.toggle("is-disabled", isLossless);
+    }
+
+    if (formatSel) formatSel.addEventListener("change", syncBitrateAvailability);
+    syncBitrateAvailability();
 
     createMediaController({
       kind: "audio",
@@ -355,10 +388,20 @@
       progressLabelId: "audio-progress-label",
       statusTextId: "audio-status-text",
       resultListId: "audio-result-list",
-      outExt: "mp3",
-      outMime: "audio/mpeg",
+      outExt: () => currentFormat(),
+      outMime: () => AUDIO_MIME[currentFormat()],
       buildArgs: (inName, outName) => {
+        const fmt = currentFormat();
+        // -vn: 映像トラック（アルバムアートを含む）を捨てて音声だけを出力する
+        if (fmt === "wav") {
+          // WAV は無圧縮PCM（16bit リトルエンディアン）
+          return ["-i", inName, "-vn", "-c:a", "pcm_s16le", outName];
+        }
         const kbps = (bitrateSel && bitrateSel.value) ? bitrateSel.value : "96";
+        if (fmt === "m4a") {
+          // .m4a は ipod マルチプレクサを明示しておくと確実にM4Aコンテナで出力される
+          return ["-i", inName, "-vn", "-c:a", "aac", "-b:a", `${kbps}k`, "-f", "ipod", outName];
+        }
         return ["-i", inName, "-vn", "-c:a", "libmp3lame", "-b:a", `${kbps}k`, outName];
       },
     });

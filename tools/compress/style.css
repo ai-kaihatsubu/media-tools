@@ -635,3 +635,8 @@ h3 {
       "download";
   }
 }
+
+/* 出力形式がWAV（無圧縮）のとき、ビットレート行を無効表示にする */
+.setting-row.is-disabled {
+  opacity: 0.5;
+}

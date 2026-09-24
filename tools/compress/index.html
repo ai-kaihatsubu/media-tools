@@ -4,14 +4,14 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 
-<title>メディア圧縮（画像・動画・音声）｜アップロード不要・ブラウザ内で軽量化｜ツール置き場</title>
-<meta name="description" content="画像・動画・音声をサーバーに送らず、お使いの端末（ブラウザ）内だけで圧縮。画像はCanvas、動画・音声はffmpeg.wasmで処理。アップロード不要・無料で安心。">
+<title>メディア圧縮・音声変換（画像・動画・音声／MP3・M4A・WAV）｜アップロード不要・ブラウザ内で処理｜ツール置き場</title>
+<meta name="description" content="画像・動画・音声をサーバーに送らず、お使いの端末（ブラウザ）内だけで圧縮。音声はMP3・M4A・WAVの相互変換にも対応。画像はCanvas、動画・音声はffmpeg.wasmで処理。アップロード不要・無料で安心。">
 <link rel="canonical" href="https://ai-kaihatsubu.github.io/image-compressor/">
 
 <!-- OGP -->
 <meta property="og:type" content="website">
-<meta property="og:title" content="メディア圧縮（画像・動画・音声）｜アップロード不要・ブラウザ内で軽量化｜ツール置き場">
-<meta property="og:description" content="画像・動画・音声をサーバーに送らず、端末内だけで圧縮。動画・音声はブラウザ内のffmpeg.wasmで処理、外部送信なし。無料。">
+<meta property="og:title" content="メディア圧縮・音声変換（画像・動画・音声／MP3・M4A・WAV）｜アップロード不要・ブラウザ内で処理｜ツール置き場">
+<meta property="og:description" content="画像・動画・音声を端末内だけで圧縮。音声はMP3・M4A・WAVの相互変換にも対応。ブラウザ内のffmpeg.wasmで処理し外部送信なし。無料。">
 <meta property="og:url" content="https://ai-kaihatsubu.github.io/image-compressor/">
 <meta property="og:image" content="https://ai-kaihatsubu.github.io/image-compressor/icons/icon-512.svg">
 <meta property="og:locale" content="ja_JP">
@@ -28,8 +28,8 @@
 {
   "@context": "https://schema.org",
   "@type": "WebApplication",
-  "name": "メディア圧縮（画像・動画・音声）",
-  "description": "画像・動画・音声をサーバーに送らず、ブラウザ内だけで圧縮するツールです。画像はCanvas API、動画・音声はffmpeg.wasm（単一スレッド版）で処理し、データを外部に送信しません。",
+  "name": "メディア圧縮・音声変換（画像・動画・音声）",
+  "description": "画像・動画・音声をサーバーに送らず、ブラウザ内だけで圧縮・変換するツールです。音声はMP3・M4A・WAVの相互変換に対応します。画像はCanvas API、動画・音声はffmpeg.wasm（単一スレッド版）で処理し、データを外部に送信しません。",
   "applicationCategory": "UtilitiesApplication",
   "operatingSystem": "Any",
   "offers": {
@@ -52,7 +52,7 @@
 
 <header class="site-header">
   <div class="container header-inner">
-    <h1 class="logo">メディア圧縮</h1>
+    <h1 class="logo">メディア圧縮・変換</h1>
     <nav class="header-actions" aria-label="表示設定">
       <button id="theme-toggle" type="button" aria-label="ダーク/ライトモード切替" aria-pressed="false">
         <span aria-hidden="true">🌙</span>
@@ -76,7 +76,7 @@
 <main id="main" class="container">
 
   <section class="tool-section" aria-labelledby="tool-heading">
-    <h2 id="tool-heading">メディアを圧縮（画像・動画・音声）</h2>
+    <h2 id="tool-heading">メディアを圧縮・変換（画像・動画・音声）</h2>
     <p class="lead">
       画像・動画・音声はサーバーに送信されません。すべてこの端末（ブラウザ）内で処理されます。
     </p>
@@ -257,6 +257,18 @@
 
       <div class="settings-panel">
         <div class="setting-row">
+          <label for="audio-format">出力形式</label>
+          <select id="audio-format">
+            <option value="mp3" selected>MP3（圧縮・最も汎用）</option>
+            <option value="m4a">M4A / AAC（圧縮・高音質）</option>
+            <option value="wav">WAV（無圧縮・編集や取り込み向け）</option>
+          </select>
+          <p class="setting-help">
+            MP3・M4A・WAV を相互に変換できます（例: M4A→WAV、MP3→WAV、WAV→MP3・M4A）。
+            <strong>WAV は無圧縮</strong>のため、MP3やM4Aから変換するとファイルは大きくなります。
+          </p>
+        </div>
+        <div class="setting-row" id="audio-bitrate-row">
           <label for="audio-bitrate">ビットレート</label>
           <select id="audio-bitrate">
             <option value="128">128 kbps（高音質）</option>
@@ -264,14 +276,14 @@
             <option value="64">64 kbps（軽量）</option>
           </select>
           <p class="setting-help">
-            出力形式: <strong>MP3（libmp3lame）</strong>。
-            ビットレートを下げるほど容量は小さく、音質はわずかに低下します。
+            MP3・M4A を選んだときに使います。下げるほど容量は小さく、音質はわずかに低下します。
+            WAV は無圧縮のため指定不要です。
           </p>
         </div>
       </div>
 
       <div class="action-row">
-        <button type="button" id="audio-compress-btn" class="btn btn-primary" disabled>圧縮を実行</button>
+        <button type="button" id="audio-compress-btn" class="btn btn-primary" disabled>圧縮・変換を実行</button>
         <button type="button" id="audio-clear-btn" class="btn btn-secondary" disabled>クリア</button>
       </div>
 
@@ -282,11 +294,11 @@
 
       <p id="audio-status-text" class="status-text" role="status" aria-live="polite"></p>
 
-      <ul id="audio-result-list" class="result-list" aria-label="音声圧縮結果"></ul>
+      <ul id="audio-result-list" class="result-list" aria-label="音声の処理結果"></ul>
 
       <p class="setting-help notice-block">
-        音声圧縮は端末内のffmpeg.wasm（単一スレッド）で行います。
-        長時間の音声はメモリ・処理時間の制約を受けます。
+        音声は <strong>MP3・M4A・WAV の相互変換</strong>に対応しています（例: M4A→WAV、MP3→WAV、WAV→MP3・M4A）。
+        処理は端末内のffmpeg.wasm（単一スレッド）で行うため、長時間の音声はメモリ・処理時間の制約を受けます。
       </p>
     </div><!-- /panel-audio -->
 
@@ -313,7 +325,7 @@
   <section class="tool-section" aria-labelledby="howto-heading">
     <h2 id="howto-heading">使い方</h2>
     <ol>
-      <li>上部のタブで「画像 / 動画 / 音声」モードを選びます。</li>
+      <li>上部のタブで「画像 / 動画 / 音声」モードを選びます。音声モードでは出力形式（MP3・M4A・WAV）を選べるので、形式の変換にも使えます。</li>
       <li>圧縮したいファイルをドラッグ＆ドロップ、またはボタンから選択します（画像は複数枚OK）。</li>
       <li>必要に応じて画質・解像度・ビットレートなどを調整します。</li>
       <li>処理が完了すると、元のサイズ・圧縮後のサイズ・削減率が表示されます。</li>
